@@ -1,0 +1,76 @@
+
+
+# remote access from Download folder
+ssh -i "vpc.pem" ec2-user@ec2-54-252-45-72.ap-southeast-2.compute.amazonaws.com
+ssh -i "vpc.pem" ec2-user@ec2-54-253-34-134.ap-southeast-2.compute.amazonaws.com
+
+# database endpoint
+pega-db.camt2om6k8qd.ap-southeast-2.rds.amazonaws.com
+
+
+# for FTP setup
+chown -R apache:apache /var/www/html
+
+
+# Wordpress Config
+
+## change wp-config.php
+
+# Modify the database connection parameters as follows:
+# define('DB_NAME', 'database_name');
+# define('DB_USER', 'awang');
+# define('DB_PASSWORD', 'YOUR_PASSWORD');
+# define('DB_HOST, 'pega-db.camt2om6k8qd.ap-southeast-2.rds.amazonaws.com');
+
+
+## Use Route 53 to redirect site to a URL
+
+
+
+
+
+sudo systemctl restart httpd
+------------------------------
+# Customer Text setup for EC2
+------------------------------
+#!/bin/bash
+sudo yum update -y
+
+# Install php and a few commonly used php packages
+sudo amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
+sudo yum install -y httpd mariadb-server
+
+sudo systemctl start httpd
+sudo systemctl enable httpd
+sudo chkconfig httpd on
+
+# Install Wordpress
+cd /var/www/html
+sudo wget http://wordpress.org/latest.tar.gz
+sudo tar -xzvf latest.tar.gz
+
+sudo mv wordpress/* .
+sudo rm latest.tar.gz
+sudo mv wp-config-sample.php wp-config.php
+
+
+
+# Install FTP Server
+sudo yum install -y vsftpd
+sudo chkconfig --level 345 vsftpd on
+sudo adduser awang
+# passwd <USERNAME>
+sudo usermod -d /var/www/html awang
+sudo usermod -a -G apache awang
+sudo chown -R apache:apache /var/www/html
+
+---------------------
+
+# Config FTP
+# sudo vim /etc/vsftpd/vsftpd.conf
+# set to NO
+# anonymous_enable=NO
+
+
+
+
